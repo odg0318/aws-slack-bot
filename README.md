@@ -3,4 +3,4 @@ This slack bot helps you manage AWS resources via Slack.
 
 Usage
 =====
-  go get github.com/odg0318/aws-slack-bot/cmd
+    $ go get -u github.com/odg0318/aws-slack-bot/cmd
