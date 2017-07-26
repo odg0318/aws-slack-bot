@@ -1,2 +1,2 @@
 # aws-slack-bot
-This slack bot helps you manage AWS resources.
+This slack bot helps you manage AWS resources via Slack.
