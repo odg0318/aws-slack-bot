@@ -4,11 +4,16 @@ import (
 	"errors"
 
 	"github.com/nlopes/slack"
+	"github.com/odg0318/aws-slack-bot/pkg/config"
 )
 
 var (
 	errorInvalidKeyContext = errors.New("InvalidKeyContext")
 	errorExistKeyContext   = errors.New("ExistKeyContext")
+
+	keyClient  = "client"
+	keyConfig  = "config"
+	keyBotInfo = "botinfo"
 )
 
 type Context struct {
@@ -34,13 +39,33 @@ func (c *Context) Get(key string) (interface{}, error) {
 }
 
 func (c *Context) SetClient(client *slack.Client) error {
-	return c.Set("client", client)
+	return c.Set(keyClient, client)
 }
 
 func (c *Context) GetClient() *slack.Client {
-	val, _ := c.Get("client")
+	val, _ := c.Get(keyClient)
 
 	return val.(*slack.Client)
+}
+
+func (c *Context) SetConfig(cfg *config.Config) error {
+	return c.Set(keyConfig, cfg)
+}
+
+func (c *Context) GetConfig() *config.Config {
+	val, _ := c.Get(keyConfig)
+
+	return val.(*config.Config)
+}
+
+func (c *Context) SetBotInfo(cfg *slack.UserDetails) error {
+	return c.Set(keyBotInfo, cfg)
+}
+
+func (c *Context) GetBotInfo() *slack.UserDetails {
+	val, _ := c.Get(keyBotInfo)
+
+	return val.(*slack.UserDetails)
 }
 
 func NewContext() *Context {

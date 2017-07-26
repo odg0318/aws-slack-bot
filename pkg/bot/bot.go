@@ -15,6 +15,7 @@ var (
 )
 
 type Bot struct {
+	info   *slack.UserDetails
 	config *config.Config
 	client *slack.Client
 	logger *log.Logger
@@ -27,7 +28,7 @@ func (b *Bot) Run() error {
 	for msg := range rtm.IncomingEvents {
 		switch ev := msg.Data.(type) {
 		case *slack.ConnectedEvent:
-			b.logger.Print("Connected.")
+			b.onConnectedEvent(ev)
 		case *slack.MessageEvent:
 			b.onMessageEvent(ev)
 		case *slack.InvalidAuthEvent:
@@ -40,14 +41,22 @@ func (b *Bot) Run() error {
 	return nil
 }
 
+func (b *Bot) onConnectedEvent(ev *slack.ConnectedEvent) {
+	b.info = ev.Info.User
+	b.logger.Printf("Connected. %s", b.info.Name)
+}
+
 func (b *Bot) onMessageEvent(ev *slack.MessageEvent) {
 	ctx := context.NewContext()
 	ctx.SetClient(b.client)
+	ctx.SetConfig(b.config)
+	ctx.SetBotInfo(b.info)
+
 	m := NewMessage(ctx, ev)
 
 	b.logger.Printf("[%s] %s\n", m.channel, m.text)
 
-	if m.Mine() {
+	if m.Skip() {
 		return
 	}
 

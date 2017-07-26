@@ -28,6 +28,6 @@ func (c *DummyCommand) Run() error {
 	return nil
 }
 
-func newDummyCommand(ctx *context.Context, channel string, params []string) *DummyCommand {
-	return &DummyCommand{ctx, channel, params}
+func newDummyCommand(ctx *context.Context, channel string, params []string) (*DummyCommand, error) {
+	return &DummyCommand{ctx, channel, params}, nil
 }

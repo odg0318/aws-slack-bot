@@ -1,9 +1,13 @@
 package bot
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/nlopes/slack"
 	"github.com/odg0318/aws-slack-bot/pkg/command"
 	"github.com/odg0318/aws-slack-bot/pkg/context"
+	"github.com/odg0318/aws-slack-bot/pkg/util"
 )
 
 type Message struct {
@@ -13,18 +17,40 @@ type Message struct {
 	text    string
 }
 
-func (m *Message) Mine() bool {
-	return len(m.user) == 0
+func (m *Message) Skip() bool {
+	if len(m.user) == 0 {
+		return true
+	}
+
+	tokens := strings.Split(m.text, " ")
+	if len(tokens) == 0 {
+		return true
+	}
+
+	signal := fmt.Sprintf("<@%s>", m.context.GetBotInfo().ID)
+
+	if tokens[0] != signal {
+		return true
+	}
+	return false
 }
 
 func (m *Message) Run() error {
-	cmd := command.NewCommand(m.context, m.text, m.channel)
+	cmd, err := command.NewCommand(m.context, m.text, m.channel)
+	if err != nil {
+		client := m.context.GetClient()
+		util.SendError(client, m.channel, err)
+		return err
+	}
+
 	if cmd == nil {
 		return nil
 	}
 
-	err := cmd.Run()
+	err = cmd.Run()
 	if err != nil {
+		client := m.context.GetClient()
+		util.SendError(client, m.channel, err)
 		return err
 	}
 

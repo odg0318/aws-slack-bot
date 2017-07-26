@@ -18,6 +18,7 @@ type Config struct {
 		Token string `yaml:"token"`
 	} `yaml:"slack"`
 	Aws []struct {
+		Region          string `yaml:"region"`
 		AccessKey       string `yaml:"access_key"`
 		SecretAccessKey string `yaml:"secret_access_key"`
 	} `yaml:"aws"`
