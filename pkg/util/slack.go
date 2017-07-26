@@ -17,8 +17,9 @@ func SendError(client *slack.Client, channel string, err error) {
 		Username: "awsbot",
 		Attachments: []slack.Attachment{
 			{
-				Text:  err.Error(),
-				Color: "#ff0000",
+				Text:       err.Error(),
+				Color:      "#ff0000",
+				MarkdownIn: []string{"text"},
 			},
 		},
 	}

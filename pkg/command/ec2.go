@@ -37,8 +37,9 @@ func (c *Ec2Command) Run() error {
 
 	for _, instance := range response.Instances {
 		attachment := slack.Attachment{
-			Text:  fmt.Sprintf("instance-id: %v | private-id: %v | public-ip: %v", instance.ID, instance.PrivateIp, instance.PublicIp),
-			Color: "#12d34d",
+			Text:       fmt.Sprintf("`instance-id`: %v | `private-id`: %v | `public-ip`: %v", instance.ID, instance.PrivateIp, instance.PublicIp),
+			Color:      "#12d34d",
+			MarkdownIn: []string{"text"},
 		}
 		attachments = append(attachments, attachment)
 	}
