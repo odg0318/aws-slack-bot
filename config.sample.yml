@@ -1,0 +1,6 @@
+debug: false
+slack:
+  token: "SLACK_TOKEN_HERE"
+aws:
+  - access_key: "AWS_ACCESS_KEY"
+    secret_access_key: "AWS_SECRET_ACCESS_KEY"
