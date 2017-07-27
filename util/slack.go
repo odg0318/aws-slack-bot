@@ -4,12 +4,17 @@ import (
 	"github.com/nlopes/slack"
 )
 
-func SendAttatchment(client *slack.Client, channel string, attachments []slack.Attachment) {
+const (
+	COLOR_SUCCESS = "#4dd14d"
+	COLOR_FAIL    = "#FF0000"
+)
+
+func SendAttatchment(client *slack.Client, channel string, text string, attachments []slack.Attachment) {
 	params := slack.PostMessageParameters{
 		Attachments: attachments,
 	}
 
-	client.PostMessage(channel, "", params)
+	client.PostMessage(channel, text, params)
 }
 
 func SendError(client *slack.Client, channel string, err error) {
@@ -18,7 +23,7 @@ func SendError(client *slack.Client, channel string, err error) {
 		Attachments: []slack.Attachment{
 			{
 				Text:       err.Error(),
-				Color:      "#ff0000",
+				Color:      COLOR_FAIL,
 				MarkdownIn: []string{"text"},
 			},
 		},

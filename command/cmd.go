@@ -16,21 +16,24 @@ var (
 
 type Command interface {
 	Run() error
+	Parse([]string) error
 }
 
 func NewCommand(ctx *context.Context, text, channel string) (Command, error) {
 	tokens := strings.Split(text, " ")
-	cmd := tokens[1]
-	params := tokens[2:]
 
-	println(cmd, params)
+	var cmd string
+	var params []string
+
+	if len(tokens) > 1 {
+		cmd = tokens[1]
+		params = tokens[2:]
+	}
 
 	switch cmd {
 	case cmdEc2:
 		return newEc2Command(ctx, channel, params)
-	case cmdDummy:
-		return newDummyCommand(ctx, channel, params)
 	default:
-		return nil, nil
+		return newDummyCommand(ctx, channel, params)
 	}
 }

@@ -4,30 +4,46 @@ import (
 	"strings"
 
 	"github.com/nlopes/slack"
+
 	"github.com/odg0318/aws-slack-bot/context"
+	"github.com/odg0318/aws-slack-bot/util"
 )
 
 type DummyCommand struct {
 	context *context.Context
 	channel string
-	params  []string
+	cmds    []string
+}
+
+func (c *DummyCommand) Parse(params []string) error {
+	c.cmds = []string{cmdEc2}
+	return nil
 }
 
 func (c *DummyCommand) Run() error {
 	client := c.context.GetClient()
 
-	params := slack.PostMessageParameters{}
 	attachment := slack.Attachment{
-		Pretext: "Dummy Command",
-		Text:    strings.Join(c.params, " "),
+		Text:  strings.Join(c.cmds, " "),
+		Color: "#ff0000",
 	}
-	params.Attachments = []slack.Attachment{attachment}
+	attachments := []slack.Attachment{attachment}
 
-	client.PostMessage(c.channel, "", params)
+	util.SendAttatchment(client, c.channel, "Hi! I'm aws slack bot. There are following commands.", attachments)
 
 	return nil
 }
 
 func newDummyCommand(ctx *context.Context, channel string, params []string) (*DummyCommand, error) {
-	return &DummyCommand{ctx, channel, params}, nil
+	c := &DummyCommand{
+		context: ctx,
+		channel: channel,
+	}
+
+	err := c.Parse(params)
+	if err != nil {
+		return nil, err
+	}
+
+	return c, nil
 }

@@ -17,24 +17,35 @@ type FindEc2IpResponse struct {
 
 type FindEc2IpResponse_Instance struct {
 	ID        string
+	Name      string
 	PublicIp  string
 	PrivateIp string
 }
 
-func FindEc2Ip(sessions Sessions, instanceId string) (*FindEc2IpResponse, error) {
+func FindEc2Ip(sessions Sessions, instanceId string, instanceName string) (*FindEc2IpResponse, error) {
 	instances := []FindEc2IpResponse_Instance{}
+
+	filters := []*ec2.Filter{}
+	if len(instanceId) > 0 {
+		filters = append(filters, &ec2.Filter{
+			Name:   libaws.String("instance-id"),
+			Values: []*string{libaws.String(instanceId)},
+		})
+	}
+
+	if len(instanceName) > 0 {
+		filters = append(filters, &ec2.Filter{
+			Name:   libaws.String("tag:Name"),
+			Values: []*string{libaws.String(instanceName)},
+		})
+	}
+
+	input := &ec2.DescribeInstancesInput{
+		Filters: filters,
+	}
 
 	for _, session := range sessions {
 		client := ec2.New(session)
-
-		input := &ec2.DescribeInstancesInput{
-			Filters: []*ec2.Filter{
-				{
-					Name:   libaws.String("instance-id"),
-					Values: []*string{libaws.String(instanceId)},
-				},
-			},
-		}
 
 		output, err := client.DescribeInstances(input)
 		if err != nil {
@@ -42,12 +53,27 @@ func FindEc2Ip(sessions Sessions, instanceId string) (*FindEc2IpResponse, error)
 		}
 
 		for _, reservation := range output.Reservations {
-			for _, instance := range reservation.Instances {
-				instances = append(instances, FindEc2IpResponse_Instance{
-					ID:        *instance.InstanceId,
-					PublicIp:  *instance.PublicIpAddress,
-					PrivateIp: *instance.PrivateIpAddress,
-				})
+			for _, i := range reservation.Instances {
+				instance := FindEc2IpResponse_Instance{
+					ID:        *i.InstanceId,
+					Name:      "unknown",
+					PublicIp:  "unknown",
+					PrivateIp: *i.PrivateIpAddress,
+				}
+
+				for _, tag := range i.Tags {
+					if *tag.Key != "Name" {
+						continue
+					}
+
+					instance.Name = *tag.Value
+				}
+
+				if i.PublicIpAddress != nil {
+					instance.PublicIp = *i.PublicIpAddress
+				}
+
+				instances = append(instances, instance)
 			}
 		}
 	}

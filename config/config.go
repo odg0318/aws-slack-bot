@@ -9,10 +9,15 @@ import (
 )
 
 var (
-	errorInvalidToken = errors.New("InvalidToken")
+	errorMustBotName    = errors.New("Bot name is required in configuration.")
+	errorMustSlackToken = errors.New("Slack token is required in configuration.")
 )
 
 type Config struct {
+	Bot struct {
+		Name  string `yaml:"name"`
+		Emoji string `yaml:"emoji"`
+	} `yaml:"bot"`
 	Debug bool `yaml:"debug"`
 	Slack struct {
 		Token string `yaml:"token"`
@@ -25,8 +30,11 @@ type Config struct {
 }
 
 func (c *Config) Validate() error {
+	if len(c.Bot.Name) == 0 {
+		return errorMustBotName
+	}
 	if len(c.Slack.Token) == 0 {
-		return errorInvalidToken
+		return errorMustSlackToken
 	}
 
 	return nil
