@@ -4,7 +4,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/odg0318/aws-slack-bot/pkg/config"
+	"github.com/odg0318/aws-slack-bot/config"
 )
 
 type Sessions []*session.Session

@@ -5,9 +5,9 @@ import (
 	"strings"
 
 	"github.com/nlopes/slack"
-	"github.com/odg0318/aws-slack-bot/pkg/command"
-	"github.com/odg0318/aws-slack-bot/pkg/context"
-	"github.com/odg0318/aws-slack-bot/pkg/util"
+	"github.com/odg0318/aws-slack-bot/command"
+	"github.com/odg0318/aws-slack-bot/context"
+	"github.com/odg0318/aws-slack-bot/util"
 )
 
 type Message struct {

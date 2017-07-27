@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/nlopes/slack"
-	"github.com/odg0318/aws-slack-bot/pkg/config"
+	"github.com/odg0318/aws-slack-bot/config"
 )
 
 var (

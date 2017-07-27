@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/odg0318/aws-slack-bot/pkg/bot"
-	"github.com/odg0318/aws-slack-bot/pkg/config"
+	"github.com/odg0318/aws-slack-bot/bot"
+	"github.com/odg0318/aws-slack-bot/config"
 	"github.com/urfave/cli"
 )
 

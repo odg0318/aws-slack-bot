@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/nlopes/slack"
-	"github.com/odg0318/aws-slack-bot/pkg/context"
+	"github.com/odg0318/aws-slack-bot/context"
 )
 
 type DummyCommand struct {

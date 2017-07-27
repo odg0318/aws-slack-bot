@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/nlopes/slack"
-	"github.com/odg0318/aws-slack-bot/pkg/aws"
-	"github.com/odg0318/aws-slack-bot/pkg/context"
-	"github.com/odg0318/aws-slack-bot/pkg/util"
+	"github.com/odg0318/aws-slack-bot/aws"
+	"github.com/odg0318/aws-slack-bot/context"
+	"github.com/odg0318/aws-slack-bot/util"
 )
 
 var (
