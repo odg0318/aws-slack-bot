@@ -16,7 +16,7 @@ type DummyCommand struct {
 }
 
 func (c *DummyCommand) Parse(params []string) error {
-	c.cmds = []string{cmdEc2}
+	c.cmds = allCmds
 	return nil
 }
 

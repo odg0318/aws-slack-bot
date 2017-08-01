@@ -8,8 +8,10 @@ import (
 )
 
 var (
-	cmdEc2   = "ec2"
-	cmdDummy = "dummy"
+	allCmds     = []string{cmdEc2, cmdOpsworks}
+	cmdEc2      = "ec2"
+	cmdOpsworks = "opsworks"
+	cmdDummy    = "dummy"
 
 	errorInvalidParams = errors.New("InvalidParams")
 )
@@ -33,6 +35,8 @@ func NewCommand(ctx *context.Context, text, channel string) (Command, error) {
 	switch cmd {
 	case cmdEc2:
 		return newEc2Command(ctx, channel, params)
+	case cmdOpsworks:
+		return newOpsworksCommand(ctx, channel, params)
 	default:
 		return newDummyCommand(ctx, channel, params)
 	}
