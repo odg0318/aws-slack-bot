@@ -2,6 +2,7 @@ package aws
 
 import (
 	"errors"
+	"strings"
 
 	libaws "github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
@@ -16,6 +17,8 @@ type FindOpsworksIpResponse struct {
 }
 
 type FindOpsworksIpResponse_Instance struct {
+	Stack     string
+	Layer     string
 	ID        string
 	Name      string
 	PublicIp  string
@@ -53,11 +56,15 @@ func FindOpsworksIp(sessions Sessions, instanceName string) (*FindOpsworksIpResp
 				}
 
 				for _, tag := range i.Tags {
-					if *tag.Key != "Name" {
-						continue
+					k, v := *tag.Key, *tag.Value
+					switch {
+					case k == "opsworks:instance":
+						instance.Name = v
+					case k == "opsworks:stack":
+						instance.Stack = v
+					case strings.HasPrefix(k, "opsworks:layer:"):
+						instance.Layer = v
 					}
-
-					instance.Name = *tag.Value
 				}
 
 				if i.PublicIpAddress != nil {

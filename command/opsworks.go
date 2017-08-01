@@ -57,6 +57,16 @@ func (c *OpsworksCommand) Run() error {
 	for _, instance := range response.Instances {
 		fields := []slack.AttachmentField{
 			{
+				Title: "stack",
+				Value: instance.Stack,
+				Short: true,
+			},
+			{
+				Title: "layer",
+				Value: instance.Layer,
+				Short: true,
+			},
+			{
 				Title: "name",
 				Value: instance.Name,
 				Short: true,
