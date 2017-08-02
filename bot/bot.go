@@ -8,6 +8,7 @@ import (
 	"github.com/nlopes/slack"
 	"github.com/odg0318/aws-slack-bot/config"
 	"github.com/odg0318/aws-slack-bot/context"
+	"github.com/odg0318/aws-slack-bot/util"
 )
 
 var (
@@ -15,13 +16,23 @@ var (
 )
 
 type Bot struct {
-	info   *slack.UserDetails
-	config *config.Config
-	client *slack.Client
-	logger *log.Logger
+	info        *slack.UserDetails
+	config      *config.Config
+	client      *slack.Client
+	logger      *log.Logger
+	lastChannel string
 }
 
 func (b *Bot) Run() error {
+	defer func() {
+		if r := recover(); r != nil {
+			util.SendError(b.client, b.lastChannel, r.(error))
+
+			b.logger.Printf("Panic! %+v\n", r)
+			b.Run()
+		}
+	}()
+
 	rtm := b.client.NewRTM()
 	go rtm.ManageConnection()
 
@@ -59,6 +70,8 @@ func (b *Bot) onMessageEvent(ev *slack.MessageEvent) {
 	if m.Skip() {
 		return
 	}
+
+	b.lastChannel = m.channel
 
 	err := m.Run()
 	if err != nil {
