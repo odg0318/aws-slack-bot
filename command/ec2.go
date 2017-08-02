@@ -72,17 +72,29 @@ func (c *Ec2Command) Run() error {
 				Value: instance.ID,
 				Short: true,
 			},
-			{
-				Title: "private ip",
-				Value: instance.PrivateIp,
-				Short: true,
-			},
-			{
-				Title: "public ip",
-				Value: instance.PublicIp,
-				Short: true,
-			},
 		}
+
+		if instance.State == "running" {
+			fields = append(fields,
+				slack.AttachmentField{
+					Title: "private ip",
+					Value: instance.PrivateIp,
+					Short: true,
+				},
+				slack.AttachmentField{
+					Title: "public ip",
+					Value: instance.PublicIp,
+					Short: true,
+				})
+		} else {
+			fields = append(fields,
+				slack.AttachmentField{
+					Title: "state",
+					Value: instance.State,
+					Short: true,
+				})
+		}
+
 		attachment := slack.Attachment{
 			Pretext:    fmt.Sprintf("*`%s` is found.*", instance.ID),
 			Fields:     fields,

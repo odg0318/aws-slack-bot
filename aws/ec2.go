@@ -20,6 +20,7 @@ type FindEc2IpResponse_Instance struct {
 	Name      string
 	PublicIp  string
 	PrivateIp string
+	State     string
 }
 
 func FindEc2Ip(sessions Sessions, instanceId string, instanceName string) (*FindEc2IpResponse, error) {
@@ -58,7 +59,8 @@ func FindEc2Ip(sessions Sessions, instanceId string, instanceName string) (*Find
 					ID:        *i.InstanceId,
 					Name:      "unknown",
 					PublicIp:  "unknown",
-					PrivateIp: *i.PrivateIpAddress,
+					PrivateIp: "unknown",
+					State:     "unknown",
 				}
 
 				for _, tag := range i.Tags {
@@ -71,6 +73,14 @@ func FindEc2Ip(sessions Sessions, instanceId string, instanceName string) (*Find
 
 				if i.PublicIpAddress != nil {
 					instance.PublicIp = *i.PublicIpAddress
+				}
+
+				if i.PrivateIpAddress != nil {
+					instance.PrivateIp = *i.PrivateIpAddress
+				}
+
+				if i.State != nil {
+					instance.State = *i.State.Name
 				}
 
 				instances = append(instances, instance)

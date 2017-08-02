@@ -52,7 +52,7 @@ func FindOpsworksIp(sessions Sessions, instanceName string) (*FindOpsworksIpResp
 					ID:        *i.InstanceId,
 					Name:      "unknown",
 					PublicIp:  "unknown",
-					PrivateIp: *i.PrivateIpAddress,
+					PrivateIp: "unknown",
 				}
 
 				for _, tag := range i.Tags {
@@ -69,6 +69,10 @@ func FindOpsworksIp(sessions Sessions, instanceName string) (*FindOpsworksIpResp
 
 				if i.PublicIpAddress != nil {
 					instance.PublicIp = *i.PublicIpAddress
+				}
+
+				if i.PrivateIpAddress != nil {
+					instance.PrivateIp = *i.PrivateIpAddress
 				}
 
 				instances = append(instances, instance)
