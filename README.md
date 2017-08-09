@@ -20,6 +20,7 @@ Availalbe Commands
 ### EC2
 #### Search by name
 NOTE: Regular expression is available.
+
     @botname ec2 -name="ec2-name"
 #### Search by id
     @botname ec2 -id="i-xxxx"
