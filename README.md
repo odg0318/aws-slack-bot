@@ -24,7 +24,7 @@ NOTE: Regular expression is available.
 #### Search by id
     @botname ec2 -id="i-xxxx"
 ### Opsworks
-NOTE: Name doesn't mean `Name` in tags but instance name in Opsworks. To search `Name in tag, use `ec2` command.
+NOTE: Name doesn't mean `Name` in tags but instance name in Opsworks. To search `Name` in tag, use `ec2` command.
 #### Search by name
     @botname opsworks -name="instance-name"
 
