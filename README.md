@@ -44,7 +44,7 @@ aws:
     secret_access_key: "AWS_SECRET_ACCESS_KEY"
 ```
 Configuration is very simple but `aws` section needs some explaination.
-To use multiple regions or accounts, `aws` section should be configured as an array including multiple information.
+To use multiple regions or accounts, `aws` section should be configured as an array including api key information.
 ```yaml
 aws:
   - region: "us-east-1"
