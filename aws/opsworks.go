@@ -2,44 +2,37 @@ package aws
 
 import (
 	"errors"
+	"strings"
 
 	libaws "github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
 var (
-	errorEc2NoResult = errors.New("No instance")
+	errorOpsworksNoResult = errors.New("No instance")
 )
 
-type FindEc2IpResponse struct {
-	Instances []FindEc2IpResponse_Instance
+type FindOpsworksIpResponse struct {
+	Instances []FindOpsworksIpResponse_Instance
 }
 
-type FindEc2IpResponse_Instance struct {
+type FindOpsworksIpResponse_Instance struct {
+	Stack     string
+	Layer     string
 	ID        string
 	Name      string
 	PublicIp  string
 	PrivateIp string
-	State     string
 }
 
-func FindEc2Ip(sessions Sessions, instanceId string, instanceName string) (*FindEc2IpResponse, error) {
-	instances := []FindEc2IpResponse_Instance{}
+func FindOpsworksIp(sessions Sessions, instanceName string) (*FindOpsworksIpResponse, error) {
+	instances := []FindOpsworksIpResponse_Instance{}
 
 	filters := []*ec2.Filter{}
-	if len(instanceId) > 0 {
-		filters = append(filters, &ec2.Filter{
-			Name:   libaws.String("instance-id"),
-			Values: []*string{libaws.String(instanceId)},
-		})
-	}
-
-	if len(instanceName) > 0 {
-		filters = append(filters, &ec2.Filter{
-			Name:   libaws.String("tag:Name"),
-			Values: []*string{libaws.String(instanceName)},
-		})
-	}
+	filters = append(filters, &ec2.Filter{
+		Name:   libaws.String("tag:opsworks:instance"),
+		Values: []*string{libaws.String(instanceName)},
+	})
 
 	input := &ec2.DescribeInstancesInput{
 		Filters: filters,
@@ -55,20 +48,23 @@ func FindEc2Ip(sessions Sessions, instanceId string, instanceName string) (*Find
 
 		for _, reservation := range output.Reservations {
 			for _, i := range reservation.Instances {
-				instance := FindEc2IpResponse_Instance{
+				instance := FindOpsworksIpResponse_Instance{
 					ID:        *i.InstanceId,
 					Name:      "unknown",
 					PublicIp:  "unknown",
 					PrivateIp: "unknown",
-					State:     "unknown",
 				}
 
 				for _, tag := range i.Tags {
-					if *tag.Key != "Name" {
-						continue
+					k, v := *tag.Key, *tag.Value
+					switch {
+					case k == "opsworks:instance":
+						instance.Name = v
+					case k == "opsworks:stack":
+						instance.Stack = v
+					case strings.HasPrefix(k, "opsworks:layer:"):
+						instance.Layer = v
 					}
-
-					instance.Name = *tag.Value
 				}
 
 				if i.PublicIpAddress != nil {
@@ -79,20 +75,16 @@ func FindEc2Ip(sessions Sessions, instanceId string, instanceName string) (*Find
 					instance.PrivateIp = *i.PrivateIpAddress
 				}
 
-				if i.State != nil {
-					instance.State = *i.State.Name
-				}
-
 				instances = append(instances, instance)
 			}
 		}
 	}
 
 	if len(instances) == 0 {
-		return nil, errorEc2NoResult
+		return nil, errorOpsworksNoResult
 	}
 
-	response := &FindEc2IpResponse{
+	response := &FindOpsworksIpResponse{
 		Instances: instances,
 	}
 	return response, nil

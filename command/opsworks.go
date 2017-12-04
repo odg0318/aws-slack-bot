@@ -12,40 +12,34 @@ import (
 )
 
 var (
-	errorEc2Help = errors.New("*Help* `@botname ec2 [-id=instance-id|-name=instance-name]`")
+	errorOpsworksHelp = errors.New("*Help* `@botname opsworks [-name=instance-name]`")
 )
 
-type Ec2Command struct {
+type OpsworksCommand struct {
 	context      *context.Context
 	channel      string
-	instanceId   string
 	instanceName string
 	region       string
 }
 
-func (c *Ec2Command) Parse(params []string) error {
+func (c *OpsworksCommand) Parse(params []string) error {
 	fset := flag.NewFlagSet("", flag.ContinueOnError)
-	fset.StringVar(&c.instanceId, "id", "", "instance-id")
 	fset.StringVar(&c.instanceName, "name", "", "instance-name")
 	fset.StringVar(&c.region, "region", "", "region")
 
 	err := fset.Parse(params)
 	if err != nil {
-		return errorEc2Help
+		return errorOpsworksHelp
 	}
 
-	if len(c.instanceId) == 0 && len(c.instanceName) == 0 {
-		return errorEc2Help
-	}
-
-	if len(c.instanceId) > 0 && len(c.instanceName) > 0 {
-		return errorEc2Help
+	if len(c.instanceName) == 0 {
+		return errorOpsworksHelp
 	}
 
 	return nil
 }
 
-func (c *Ec2Command) Run() error {
+func (c *OpsworksCommand) Run() error {
 	client := c.context.GetClient()
 	cfg := c.context.GetConfig()
 
@@ -55,13 +49,23 @@ func (c *Ec2Command) Run() error {
 	}
 
 	attachments := []slack.Attachment{}
-	response, err := aws.FindEc2Ip(sessions, c.instanceId, c.instanceName)
+	response, err := aws.FindOpsworksIp(sessions, c.instanceName)
 	if err != nil {
 		return err
 	}
 
-	for i, instance := range response.Instances {
+	for _, instance := range response.Instances {
 		fields := []slack.AttachmentField{
+			{
+				Title: "stack",
+				Value: instance.Stack,
+				Short: true,
+			},
+			{
+				Title: "layer",
+				Value: instance.Layer,
+				Short: true,
+			},
 			{
 				Title: "name",
 				Value: instance.Name,
@@ -72,33 +76,21 @@ func (c *Ec2Command) Run() error {
 				Value: instance.ID,
 				Short: true,
 			},
+			{
+				Title: "private ip",
+				Value: instance.PrivateIp,
+				Short: true,
+			},
+			{
+				Title: "public ip",
+				Value: instance.PublicIp,
+				Short: true,
+			},
 		}
-
-		if instance.State == "running" {
-			fields = append(fields,
-				slack.AttachmentField{
-					Title: "private ip",
-					Value: instance.PrivateIp,
-					Short: true,
-				},
-				slack.AttachmentField{
-					Title: "public ip",
-					Value: instance.PublicIp,
-					Short: true,
-				})
-		} else {
-			fields = append(fields,
-				slack.AttachmentField{
-					Title: "state",
-					Value: instance.State,
-					Short: true,
-				})
-		}
-
 		attachment := slack.Attachment{
 			Pretext:    fmt.Sprintf("*`%s` is found.*", instance.ID),
 			Fields:     fields,
-			Color:      util.COLOR_SUCCESS_LIST[i%3],
+			Color:      util.COLOR_SUCCESS,
 			MarkdownIn: []string{"pretext", "text"},
 		}
 		attachments = append(attachments, attachment)
@@ -109,8 +101,8 @@ func (c *Ec2Command) Run() error {
 	return nil
 }
 
-func newEc2Command(ctx *context.Context, channel string, params []string) (*Ec2Command, error) {
-	c := &Ec2Command{
+func newOpsworksCommand(ctx *context.Context, channel string, params []string) (*OpsworksCommand, error) {
+	c := &OpsworksCommand{
 		context: ctx,
 		channel: channel,
 	}
