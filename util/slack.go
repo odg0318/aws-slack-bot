@@ -9,6 +9,10 @@ const (
 	COLOR_FAIL    = "#FF0000"
 )
 
+var (
+	COLOR_SUCCESS_LIST = []string{"#22f98d", "#00b95d", "#368992"}
+)
+
 func SendAttatchment(client *slack.Client, channel string, text string, attachments []slack.Attachment) {
 	params := slack.PostMessageParameters{
 		Attachments: attachments,

@@ -60,7 +60,7 @@ func (c *Ec2Command) Run() error {
 		return err
 	}
 
-	for _, instance := range response.Instances {
+	for i, instance := range response.Instances {
 		fields := []slack.AttachmentField{
 			{
 				Title: "name",
@@ -98,7 +98,7 @@ func (c *Ec2Command) Run() error {
 		attachment := slack.Attachment{
 			Pretext:    fmt.Sprintf("*`%s` is found.*", instance.ID),
 			Fields:     fields,
-			Color:      util.COLOR_SUCCESS,
+			Color:      util.COLOR_SUCCESS_LIST[i%3],
 			MarkdownIn: []string{"pretext", "text"},
 		}
 		attachments = append(attachments, attachment)
